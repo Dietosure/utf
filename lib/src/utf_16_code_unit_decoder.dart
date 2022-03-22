@@ -11,15 +11,14 @@ import 'list_range.dart';
 /// The parameters can override the default Unicode replacement character. Set
 /// the replacementCharacter to null to throw an ArgumentError
 /// rather than replace the bad value.
-class Utf16CodeUnitDecoder implements Iterator<int> {
-  // TODO(kevmoo): should this field be private?
+class Utf16CodeUnitDecoder implements Iterator<int?> {
   final ListRangeIterator utf16CodeUnitIterator;
   final int replacementCodepoint;
-  int _current;
+  int? _current;
 
   Utf16CodeUnitDecoder(List<int> utf16CodeUnits,
       [int offset = 0,
-      int length,
+      int? length,
       this.replacementCodepoint = UNICODE_REPLACEMENT_CHARACTER_CODEPOINT])
       : utf16CodeUnitIterator =
             (ListRange(utf16CodeUnits, offset, length)).iterator;
@@ -27,18 +26,19 @@ class Utf16CodeUnitDecoder implements Iterator<int> {
   Utf16CodeUnitDecoder.fromListRangeIterator(
       this.utf16CodeUnitIterator, this.replacementCodepoint);
 
-  Iterator<int> get iterator => this;
+  Iterator<int?> get iterator => this;
 
   @override
-  int get current => _current;
+  int? get current => _current;
 
   @override
   bool moveNext() {
     _current = null;
     if (!utf16CodeUnitIterator.moveNext()) return false;
 
-    var value = utf16CodeUnitIterator.current;
+    var value = utf16CodeUnitIterator.current!;
     if (value < 0) {
+      // ignore: unnecessary_null_comparison
       if (replacementCodepoint != null) {
         _current = replacementCodepoint;
       } else {
@@ -52,7 +52,7 @@ class Utf16CodeUnitDecoder implements Iterator<int> {
     } else if (value < UNICODE_UTF16_SURROGATE_UNIT_1_BASE &&
         utf16CodeUnitIterator.moveNext()) {
       // merge surrogate pair
-      var nextValue = utf16CodeUnitIterator.current;
+      var nextValue = utf16CodeUnitIterator.current!;
       if (nextValue >= UNICODE_UTF16_SURROGATE_UNIT_1_BASE &&
           nextValue <= UNICODE_UTF16_RESERVED_HI) {
         value = (value - UNICODE_UTF16_SURROGATE_UNIT_0_BASE) << 10;
@@ -64,6 +64,7 @@ class Utf16CodeUnitDecoder implements Iterator<int> {
             nextValue < UNICODE_UTF16_SURROGATE_UNIT_1_BASE) {
           utf16CodeUnitIterator.backup();
         }
+        // ignore: unnecessary_null_comparison
         if (replacementCodepoint != null) {
           _current = replacementCodepoint;
         } else {
@@ -71,6 +72,7 @@ class Utf16CodeUnitDecoder implements Iterator<int> {
               'Invalid UTF16 at ${utf16CodeUnitIterator.position}');
         }
       }
+      // ignore: unnecessary_null_comparison
     } else if (replacementCodepoint != null) {
       _current = replacementCodepoint;
     } else {
