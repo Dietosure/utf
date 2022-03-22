@@ -135,11 +135,14 @@ class IterableUtf8Decoder extends IterableBase<int?> {
   @override
   final int length;
   final int replacementCodepoint;
-  // TODO: I tried my best but unable to resolve this. Please look into this problem (Irritating).
-  IterableUtf8Decoder(this.bytes,
-      [this.offset = 0,
-      this.length,
-      this.replacementCodepoint = UNICODE_REPLACEMENT_CHARACTER_CODEPOINT]);
+
+  IterableUtf8Decoder(
+      this.bytes, this.offset, this.length, this.replacementCodepoint);
+
+  // IterableUtf8Decoder(this.bytes,
+  //     [this.offset = 0,
+  //     this.length,
+  //     this.replacementCodepoint = UNICODE_REPLACEMENT_CHARACTER_CODEPOINT]);
 
   @override
   Utf8Decoder get iterator =>
